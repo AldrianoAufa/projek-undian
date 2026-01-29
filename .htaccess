@@ -1,0 +1,21 @@
+<IfModule mod_rewrite.c>
+    Options +FollowSymLinks
+    RewriteEngine On
+
+    # --- BAGIAN INI SAYA NONAKTIFKAN ---
+    # Alasan: Baris ini mencegah gambar diarahkan ke folder public.
+    # Padahal di Laravel, 'storage' itu adanya di dalam 'public/storage'.
+    # Jadi gambar JUGA harus diarahkan ke public.
+    # -----------------------------------
+    # RewriteCond %{REQUEST_URI} \.(jpe?g|png|gif|ico)$ [NC]
+    # RewriteRule ^ - [L]
+
+    # Aturan Redirect ke Folder Public
+    RewriteCond %{REQUEST_URI} !^/public/ 
+    # Cek jika file fisik TIDAK ada di root (agar tidak loop jika ada file di root)
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+
+    # Arahkan semua request ke folder public
+    RewriteRule ^(.*)$ /public/$1 [L]
+</IfModule>
