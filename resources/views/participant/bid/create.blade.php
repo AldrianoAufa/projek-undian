@@ -194,7 +194,7 @@
                         </button>
                         <button type="button" class="btn btn-danger py-2 px-4 order-1 order-md-2" 
                                 onclick="if(confirm('Simpan lelang secara permanen? Setelah disimpan permanen, nilai lelang TIDAK DAPAT diubah lagi oleh siapapun.')) { document.getElementById('permanentForm').submit(); }">
-                            <i class="fas fa-check-double me-1"></i>Simpan Lelang Permanen & Unduh Bukti
+                            <i class="fas fa-check-double me-1"></i>Simpan Lelang Permanen
                         </button>
                     @else
                         <button type="submit" class="btn btn-success py-2 px-4 order-1 order-md-2" {{ ($isPeriodEnded ?? false) ? 'disabled' : '' }}>

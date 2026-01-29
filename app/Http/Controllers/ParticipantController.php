@@ -71,7 +71,8 @@ class ParticipantController extends Controller
 
     public function dashboard()
     {
-        $participant = Auth::guard('participant')->user();
+        // Always fetch fresh data from database (in case admin updated participant info)
+        $participant = Auth::guard('participant')->user()->fresh();
         
         // Fetch related accounts (same NIK)
         $relatedParticipants = Participant::where('nik', $participant->nik)
@@ -213,7 +214,7 @@ class ParticipantController extends Controller
 
     public function showBidForm()
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         // Get unread notification count for bukti angsuran (using NIK-based count)
         $unreadBuktiAngsuranCount = $this->getUnreadBuktiAngsuranCount($participant);
@@ -277,7 +278,7 @@ class ParticipantController extends Controller
 
     public function submitBid(Request $request)
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         $currentPeriod = $participant->group->currentPeriod();
         
         if (!$currentPeriod) {
@@ -325,7 +326,7 @@ class ParticipantController extends Controller
 
     public function makePermanent(Request $request, $bidId)
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         $bid = Bid::findOrFail($bidId);
 
         // Check if bid belongs to current participant or any of their linked accounts (same NIK)
@@ -342,7 +343,7 @@ class ParticipantController extends Controller
 
     public function downloadBidProof($bidId)
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         $bid = Bid::with(['monthlyPeriod.group'])->findOrFail($bidId);
 
         // Check if bid belongs to current participant or any of their linked accounts (same NIK)
@@ -412,7 +413,7 @@ class ParticipantController extends Controller
 
     public function storeBid(Request $request)
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         $validated = $request->validate([
             'period_id' => 'required|exists:monthly_periods,id',
@@ -474,7 +475,7 @@ class ParticipantController extends Controller
 
     public function results(Request $request)
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         // Get unread notification count for bukti angsuran (using NIK-based count)
         $unreadBuktiAngsuranCount = $this->getUnreadBuktiAngsuranCount($participant);
@@ -524,7 +525,7 @@ class ParticipantController extends Controller
 
     public function winners()
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         // Get unread notification count for bukti angsuran (using NIK-based count)
         $unreadBuktiAngsuranCount = $this->getUnreadBuktiAngsuranCount($participant);
@@ -539,7 +540,7 @@ class ParticipantController extends Controller
 
     public function profile()
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         // Get unread notification count for bukti angsuran (using NIK-based count)
         $unreadBuktiAngsuranCount = $this->getUnreadBuktiAngsuranCount($participant);
@@ -550,7 +551,7 @@ class ParticipantController extends Controller
 
     public function updateProfile(Request $request)
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -682,7 +683,7 @@ class ParticipantController extends Controller
 
     public function deletePhoto()
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         // Find all participants with the same NIK to keep profiles in sync
         $linkedParticipants = Participant::where('nik', $participant->nik)->get();
@@ -702,7 +703,7 @@ class ParticipantController extends Controller
 
     public function updateBid(Request $request, $bidId)
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         // Find the bid and verify it belongs to the participant
         $bid = Bid::with('monthlyPeriod')->findOrFail($bidId);
@@ -746,7 +747,7 @@ class ParticipantController extends Controller
 
     public function viewAuction($periodId)
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         // Get unread notification count for bukti angsuran (using NIK-based count)
         $unreadBuktiAngsuranCount = $this->getUnreadBuktiAngsuranCount($participant);
@@ -773,7 +774,7 @@ class ParticipantController extends Controller
 
     public function buktiAngsuran()
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         // Mark unread notifications as read ONLY for the current participant
         Payment::where('participant_id', $participant->id)
@@ -820,7 +821,7 @@ class ParticipantController extends Controller
 
     public function viewReceipt($paymentId)
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         $payment = Payment::with([
             'participant',
@@ -943,7 +944,7 @@ class ParticipantController extends Controller
 
     public function switchAccount($targetId)
     {
-        $currentParticipant = Auth::guard('participant')->user();
+        $currentParticipant = Auth::guard('participant')->user()->fresh();
         
         // Find the target participant
         $targetParticipant = Participant::findOrFail($targetId);
@@ -960,7 +961,7 @@ class ParticipantController extends Controller
     }
     public function hubungiKami()
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         $unreadBuktiAngsuranCount = $this->getUnreadBuktiAngsuranCount($participant);
         $customerServices = \App\Models\CustomerService::where('is_active', true)->get();
 
@@ -969,7 +970,7 @@ class ParticipantController extends Controller
 
     public function kta()
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         $setting = KtaSetting::first() ?? new KtaSetting();
         $unreadBuktiAngsuranCount = $this->getUnreadBuktiAngsuranCount($participant);
         
@@ -978,7 +979,7 @@ class ParticipantController extends Controller
 
     public function terms()
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         $unreadBuktiAngsuranCount = $this->getUnreadBuktiAngsuranCount($participant);
         
         return view('participant.terms', compact('participant', 'unreadBuktiAngsuranCount'));
@@ -986,7 +987,7 @@ class ParticipantController extends Controller
 
     public function downloadKta()
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         $settings = KtaSetting::first();
         if (!$settings) {
@@ -1005,7 +1006,7 @@ class ParticipantController extends Controller
 
     public function documentations()
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         
         // Get unread notification count for bukti angsuran (using NIK-based count)
         $unreadBuktiAngsuranCount = $this->getUnreadBuktiAngsuranCount($participant);
@@ -1022,7 +1023,7 @@ class ParticipantController extends Controller
 
     public function debugPasswordForm()
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         $dbData = \Illuminate\Support\Facades\DB::table('participants')
             ->where('id', $participant->id)
             ->select('password', 'lottery_number')
@@ -1060,7 +1061,7 @@ class ParticipantController extends Controller
 
     public function debugPasswordCheck(Request $request)
     {
-        $participant = Auth::guard('participant')->user();
+        $participant = Auth::guard('participant')->user()->fresh();
         $input = $request->test_password;
         
         $fresh = \Illuminate\Support\Facades\DB::table('participants')->where('id', $participant->id)->first();

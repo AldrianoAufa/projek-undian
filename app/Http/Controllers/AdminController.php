@@ -2872,12 +2872,33 @@ class AdminController extends Controller
     {
         $participant = Participant::findOrFail($participantId);
         
+        // Find all linked accounts with same NIK
+        $linkedAccounts = Participant::where('nik', $participant->nik)
+            ->where('id', '!=', $participant->id)
+            ->get();
+        
+        $linkedCount = $linkedAccounts->count();
+        
+        // Reset current participant password
         $participant->update([
             'password' => $participant->lottery_number,
             'is_password_changed' => false
         ]);
+        
+        // Reset all linked accounts passwords too
+        foreach ($linkedAccounts as $linked) {
+            $linked->update([
+                'password' => $linked->lottery_number,
+                'is_password_changed' => false
+            ]);
+        }
 
-        return redirect()->back()->with('success', 'Password peserta ' . $participant->name . ' berhasil direset ke default.');
+        $message = 'Password peserta ' . $participant->name . ' berhasil direset ke default.';
+        if ($linkedCount > 0) {
+            $message .= ' ' . $linkedCount . ' akun terhubung lainnya juga telah direset.';
+        }
+        
+        return redirect()->back()->with('success', $message);
     }
 
     // Kelola Jabatan Methods
@@ -3163,22 +3184,71 @@ class AdminController extends Controller
     public function updateParticipant(Request $request, $id)
     {
         $participant = \App\Models\Participant::findOrFail($id);
+        $oldNik = $participant->nik;
         
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'lottery_number' => 'required|string|max:255',
             'nik' => 'nullable|string|max:255',
             'shift' => 'nullable|string|max:255', // Bagian/Shift
-            'is_active' => 'boolean'
         ]);
-
-        $validated['is_active'] = $request->has('is_active');
         
-        // Optional: Check uniqueness if necessary, but skipping for now to rely on basic validation
+        // Find all linked accounts (same NIK) to update together
+        $linkedAccounts = \App\Models\Participant::where('nik', $oldNik)
+            ->where('id', '!=', $id)
+            ->get();
         
-        $participant->update($validated);
+        $linkedCount = $linkedAccounts->count();
         
-        return redirect()->back()->with('success', 'Data peserta berhasil diperbarui.');
+        // Check if NIK is being changed
+        $nikChanged = $oldNik !== $validated['nik'] && $validated['nik'];
+        
+        // Prepare update data for current participant
+        $updateData = $validated;
+        
+        // If NIK changed, reset password to new lottery_number
+        if ($nikChanged) {
+            $updateData['password'] = $validated['lottery_number'];
+            $updateData['is_password_changed'] = false;
+        }
+        
+        // Update current participant
+        $participant->update($updateData);
+        
+        // Update all linked accounts with same name, NIK, and shift
+        if ($linkedCount > 0 && $oldNik) {
+            foreach ($linkedAccounts as $linked) {
+                $linkedUpdate = [
+                    'name' => $validated['name'],
+                    'nik' => $validated['nik'],
+                    'shift' => $validated['shift'],
+                ];
+                
+                // Also update lottery_number and reset password if NIK changed
+                if ($nikChanged) {
+                    $oldLottery = $linked->lottery_number;
+                    // Replace old NIK prefix with new NIK in lottery_number
+                    if (str_starts_with($oldLottery, $oldNik . '-')) {
+                        $newLottery = str_replace($oldNik . '-', $validated['nik'] . '-', $oldLottery);
+                        $linkedUpdate['lottery_number'] = $newLottery;
+                        $linkedUpdate['password'] = $newLottery;
+                        $linkedUpdate['is_password_changed'] = false;
+                    }
+                }
+                
+                $linked->update($linkedUpdate);
+            }
+        }
+        
+        $message = 'Data peserta berhasil diperbarui.';
+        if ($linkedCount > 0) {
+            $message .= ' ' . ($linkedCount) . ' akun terhubung lainnya juga telah diperbarui.';
+        }
+        if ($nikChanged) {
+            $message .= ' Password telah direset ke No. Undian karena NIK diubah.';
+        }
+        
+        return redirect()->back()->with('success', $message);
     }
 
     public function deleteParticipant($id)

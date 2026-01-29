@@ -378,7 +378,7 @@
 
                         <!-- Period Information -->
                         <div class="mb-3">
-                            <small class="text-muted">Periode:</small><br>
+                            <small class="text-muted">Tanggal:</small><br>
                             <strong>{{ $period->period_start->format('d M Y') }} - {{ $period->period_end->format('d M Y') }}</strong>
                         </div>
 

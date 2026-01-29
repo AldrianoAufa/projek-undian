@@ -176,6 +176,9 @@
                                                         <i class="fas fa-eye"></i>
                                                     </a>
                                                     
+                                                    @php
+                                                        $linkedCount = $participantsData->filter(fn($p) => $p['participant']->nik === $data['participant']->nik && $p['participant']->id !== $data['participant']->id)->count();
+                                                    @endphp
                                                     <button type="button" 
                                                             class="btn btn-sm btn-warning text-white edit-participant-btn"
                                                             data-id="{{ $data['participant']->id }}"
@@ -185,6 +188,7 @@
                                                             data-shift="{{ $data['participant']->shift }}"
                                                             data-active="{{ $data['participant']->is_active }}"
                                                             data-group-id="{{ $group->id }}"
+                                                            data-linked-count="{{ $linkedCount }}"
                                                             data-bs-toggle="modal" 
                                                             data-bs-target="#editParticipantModal"
                                                             title="Edit Peserta">
@@ -192,10 +196,20 @@
                                                     </button>
 
                                                     @if($data['participant']->is_password_changed)
+                                                    @php
+                                                        $resetLinkedCount = $participantsData->filter(fn($p) => $p['participant']->nik === $data['participant']->nik && $p['participant']->id !== $data['participant']->id)->count();
+                                                        $resetConfirmMsg = 'Apakah Anda yakin ingin mereset password peserta ' . $data['participant']->name . ' ke default (No. Undian)?';
+                                                        if ($resetLinkedCount > 0) {
+                                                            $resetConfirmMsg .= '\\n\\n⚠️ PERHATIAN: ' . $resetLinkedCount . ' akun terhubung dengan NIK yang sama juga akan direset!';
+                                                        }
+                                                    @endphp
                                                     <form action="{{ route('admin.participants.reset-password', $data['participant']->id) }}" method="POST" class="d-inline">
                                                         @csrf
-                                                        <button type="submit" class="btn btn-sm btn-secondary" title="Reset Password" onclick="return confirm('Apakah Anda yakin ingin mereset password peserta {{ $data['participant']->name }} ke default (No. Undian)?')">
+                                                        <button type="submit" class="btn btn-sm btn-secondary {{ $resetLinkedCount > 0 ? 'btn-warning' : '' }}" title="Reset Password{{ $resetLinkedCount > 0 ? ' (' . ($resetLinkedCount + 1) . ' akun)' : '' }}" onclick="return confirm('{{ $resetConfirmMsg }}')">
                                                             <i class="fas fa-key"></i>
+                                                            @if($resetLinkedCount > 0)
+                                                            <span class="badge bg-light text-dark ms-1" style="font-size: 0.6rem;">{{ $resetLinkedCount + 1 }}</span>
+                                                            @endif
                                                         </button>
                                                     </form>
                                                     @endif
@@ -437,6 +451,14 @@
                     @csrf
                     @method('PUT')
                     <div class="modal-body">
+                        <!-- Linked Accounts Warning -->
+                        <div id="linked_accounts_warning" class="alert alert-info d-none mb-3">
+                            <i class="fas fa-link me-2"></i>
+                            <strong>Akun Terhubung:</strong> <span id="linked_count_text"></span>
+                            <hr class="my-2">
+                            <small class="text-dark"><i class="fas fa-exclamation-triangle me-1"></i>Perubahan Nama, NIK, dan Bagian/Shift akan diterapkan ke <strong>semua akun</strong> yang terhubung!</small>
+                        </div>
+                        
                         <div class="mb-3">
                             <label for="edit_lottery_number" class="form-label">No. Undian</label>
                             <input type="text" class="form-control bg-light" id="edit_lottery_number" readonly disabled>
@@ -568,6 +590,7 @@
                     var lottery = button.getAttribute('data-lottery');
                     var nik = button.getAttribute('data-nik');
                     var shift = button.getAttribute('data-shift');
+                    var linkedCount = parseInt(button.getAttribute('data-linked-count')) || 0;
                     currentGroupId = button.getAttribute('data-group-id');
                     originalNik = nik;
                     originalLottery = lottery;
@@ -580,6 +603,16 @@
                     document.getElementById('edit_lottery_number_hidden').value = lottery;
                     document.getElementById('edit_nik').value = nik;
                     document.getElementById('edit_shift').value = shift;
+                    
+                    // Show/hide linked accounts warning
+                    var warningDiv = document.getElementById('linked_accounts_warning');
+                    var linkedText = document.getElementById('linked_count_text');
+                    if (linkedCount > 0) {
+                        linkedText.textContent = 'Peserta ini memiliki ' + linkedCount + ' akun lain dengan NIK yang sama.';
+                        warningDiv.classList.remove('d-none');
+                    } else {
+                        warningDiv.classList.add('d-none');
+                    }
                 });
                 
                 // Auto-update lottery_number when NIK changes
