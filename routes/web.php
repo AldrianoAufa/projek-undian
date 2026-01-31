@@ -13,6 +13,11 @@ Route::get('/', function () {
     return view('home');
 })->name('home');
 
+// Image serve route - bypass hosting restrictions
+Route::get('/img/{path}', [\App\Http\Controllers\ImageController::class, 'serve'])
+    ->where('path', '.*')
+    ->name('image.serve');
+
 // Route: FORCE FIX & VERIFY
 Route::get('/force-fix-storage', function () {
     $target = storage_path('app/public');

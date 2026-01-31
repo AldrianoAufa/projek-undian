@@ -232,7 +232,7 @@
                                 <tr>
                                     <td class="px-4">
                                         @if($item->foto_profil)
-                                            <img src="{{ asset('storage/' . $item->foto_profil) }}" alt="Foto" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
+                                            <img src="{{ storage_url($item->foto_profil) }}" alt="Foto" class="rounded-circle" style="width: 40px; height: 40px; object-fit: cover;">
                                         @else
                                             <div class="rounded-circle bg-secondary d-flex align-items-center justify-content-center text-white" style="width: 40px; height: 40px;">
                                                 <i class="fas fa-user"></i>
@@ -247,7 +247,7 @@
                                     </td>
                                     <td class="align-middle">
                                         @if($item->ttd)
-                                            <img src="{{ asset('storage/' . $item->ttd) }}" alt="TTD" style="height: 30px;">
+                                            <img src="{{ storage_url($item->ttd) }}" alt="TTD" style="height: 30px;">
                                         @else
                                             <span class="text-muted small">Belum ada TTD</span>
                                         @endif
