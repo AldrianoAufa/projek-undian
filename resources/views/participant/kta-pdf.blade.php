@@ -97,7 +97,7 @@
         }
 
         .kta-back {
-            background-image: url('{{ public_path('storage/img/logo.jpeg') }}');
+            background-image: url('{{ public_path('storage/img/logo.webp') }}');
             background-repeat: no-repeat;
             background-size: contain;
             background-position: center;

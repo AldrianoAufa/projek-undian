@@ -41,11 +41,19 @@ class CustomerServiceController extends Controller
 
         if ($request->hasFile('photo')) {
             $photo = $request->file('photo');
-            $photoName = time() . '_cs_' . $photo->getClientOriginalName();
+            $photoName = time() . '_cs_' . uniqid() . '.webp';
             if (!file_exists(public_path('uploads/customer_service'))) {
                 mkdir(public_path('uploads/customer_service'), 0777, true);
             }
-            $photo->move(public_path('uploads/customer_service'), $photoName);
+            
+            // Process image: resize to 300x300 and convert to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read($photo->getPathname())
+                ->cover(300, 300)
+                ->toWebp(80);
+            file_put_contents(public_path('uploads/customer_service/' . $photoName), (string) $image);
             $data['photo'] = $photoName;
         }
 
@@ -89,11 +97,19 @@ class CustomerServiceController extends Controller
             }
 
             $photo = $request->file('photo');
-            $photoName = time() . '_cs_' . $photo->getClientOriginalName();
+            $photoName = time() . '_cs_' . uniqid() . '.webp';
             if (!file_exists(public_path('uploads/customer_service'))) {
                 mkdir(public_path('uploads/customer_service'), 0777, true);
             }
-            $photo->move(public_path('uploads/customer_service'), $photoName);
+            
+            // Process image: resize to 300x300 and convert to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read($photo->getPathname())
+                ->cover(300, 300)
+                ->toWebp(80);
+            file_put_contents(public_path('uploads/customer_service/' . $photoName), (string) $image);
             $data['photo'] = $photoName;
         }
 

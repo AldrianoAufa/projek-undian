@@ -3000,14 +3000,22 @@ class AdminController extends Controller
 
         $data = $request->except(['foto', 'ttd', 'ttd_drawing']);
 
-        // Handle photo upload
+        // Handle photo upload with Intervention Image
         if ($request->hasFile('foto')) {
             $foto = $request->file('foto');
-            $fotoName = time() . '_foto_' . $foto->getClientOriginalName();
+            $fotoName = time() . '_foto_' . uniqid() . '.webp';
             if (!file_exists(public_path('uploads/saksi'))) {
                 mkdir(public_path('uploads/saksi'), 0777, true);
             }
-            $foto->move(public_path('uploads/saksi'), $fotoName);
+            
+            // Process image: resize to 300x300 and convert to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read($foto->getPathname())
+                ->cover(300, 300)
+                ->toWebp(80);
+            file_put_contents(public_path('uploads/saksi/' . $fotoName), (string) $image);
             $data['foto'] = $fotoName;
         }
 
@@ -3063,7 +3071,7 @@ class AdminController extends Controller
 
         $data = $request->except(['foto', 'ttd', 'ttd_drawing']);
 
-        // Handle photo upload
+        // Handle photo upload with Intervention Image
         if ($request->hasFile('foto')) {
             // Delete old photo
             if ($saksi->foto) {
@@ -3074,8 +3082,16 @@ class AdminController extends Controller
             }
 
             $foto = $request->file('foto');
-            $fotoName = time() . '_foto_' . $foto->getClientOriginalName();
-            $foto->move(public_path('uploads/saksi'), $fotoName);
+            $fotoName = time() . '_foto_' . uniqid() . '.webp';
+            
+            // Process image: resize to 300x300 and convert to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read($foto->getPathname())
+                ->cover(300, 300)
+                ->toWebp(80);
+            file_put_contents(public_path('uploads/saksi/' . $fotoName), (string) $image);
             $data['foto'] = $fotoName;
         }
 
@@ -3179,6 +3195,45 @@ class AdminController extends Controller
         $admin->save();
         
         return redirect()->route('admin.profile')->with('success', 'Profil berhasil diperbarui');
+    }
+
+    public function uploadProfilePhoto(Request $request)
+    {
+        $request->validate([
+            'photo' => 'required|image|mimes:jpg,jpeg,png|max:5120', // Max 5MB
+        ]);
+
+        if ($request->hasFile('photo')) {
+            $admin = Auth::guard('admin')->user();
+            $file = $request->file('photo');
+            $filename = time() . '_' . $admin->id . '.webp';
+
+            // Hapus foto lama jika ada
+            if ($admin->profile_photo) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($admin->profile_photo);
+            }
+
+            // Memproses gambar menggunakan Intervention Image v3
+            $manager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            
+            $image = $manager->read($file->getPathname())
+                ->cover(300, 300) // Crop otomatis ke tengah (1:1)
+                ->toWebp(80); // Konversi ke WebP dengan kualitas 80%
+
+            // Simpan ke storage (public disk)
+            \Illuminate\Support\Facades\Storage::disk('public')->put('profiles/' . $filename, (string) $image);
+
+            // Update path di database
+            $admin->update([
+                'profile_photo' => 'profiles/' . $filename
+            ]);
+
+            return back()->with('success', 'Foto profil berhasil diperbarui!');
+        }
+
+        return back()->with('error', 'Gagal mengupload foto. Silakan coba lagi.');
     }
 
     public function updateParticipant(Request $request, $id)

@@ -39,11 +39,12 @@ class DocumentationController extends Controller
             $content = $request->text_content;
         } else {
             $file = $request->file('file');
-            $extension = $file->getClientOriginalExtension();
-            $filename = Str::random(20) . '.' . $extension;
-            $path = 'documentations/' . $request->type . 's/' . $filename;
-
+            
             if ($request->type === 'image') {
+                // Use Intervention Image for WebP conversion
+                $filename = Str::random(20) . '.webp';
+                $path = 'documentations/images/' . $filename;
+                
                 // Ensure directory exists
                 $fullPath = storage_path('app/public/' . $path);
                 $directory = dirname($fullPath);
@@ -51,13 +52,22 @@ class DocumentationController extends Controller
                     mkdir($directory, 0755, true);
                 }
                 
-                // Compress image using GD
-                $this->compressImage($file->getRealPath(), $fullPath);
+                // Process image with Intervention Image: convert to WebP
+                $imageManager = new \Intervention\Image\ImageManager(
+                    new \Intervention\Image\Drivers\Gd\Driver()
+                );
+                $image = $imageManager->read($file->getPathname())
+                    ->toWebp(80); // Convert to WebP with 80% quality
+                file_put_contents($fullPath, (string) $image);
+                
+                $content = $path;
             } else {
                 // For video, store on public disk
+                $extension = $file->getClientOriginalExtension();
+                $filename = Str::random(20) . '.' . $extension;
                 $file->storeAs('documentations/videos', $filename, 'public');
+                $content = 'documentations/videos/' . $filename;
             }
-            $content = $path;
         }
 
         Documentation::create([
@@ -114,9 +124,31 @@ class DocumentationController extends Controller
             ->with('success', 'Dokumentasi berhasil dihapus.');
     }
 
+    public function download($id)
+    {
+        $documentation = Documentation::findOrFail($id);
+
+        if ($documentation->type === 'text') {
+            abort(400, 'Dokumentasi teks tidak dapat didownload.');
+        }
+
+        $path = storage_path('app/public/' . $documentation->content);
+
+        if (!file_exists($path)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        $filename = $documentation->caption 
+            ? Str::slug($documentation->caption) . '.' . pathinfo($path, PATHINFO_EXTENSION)
+            : basename($path);
+
+        return response()->download($path, $filename);
+    }
+
     public function showForParticipant($periodId)
     {
         $period = MonthlyPeriod::with(['documentations', 'group'])->findOrFail($periodId);
+
         return view('participant.documentations.index', compact('period'));
     }
 

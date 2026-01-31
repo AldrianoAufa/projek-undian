@@ -36,6 +36,70 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     @endif
+    @if(session('error'))
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <i class="fas fa-exclamation-circle me-2"></i>
+            {{ session('error') }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    @endif
+
+    <!-- Profile Photo Upload -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">
+                <i class="fas fa-camera me-2"></i>
+                Foto Profil
+            </h5>
+        </div>
+        <div class="card-body">
+            <div class="row align-items-center">
+                <div class="col-auto">
+                    <div class="position-relative">
+                        @if($admin->profile_photo)
+                            <img src="{{ asset('storage/' . $admin->profile_photo) }}" 
+                                 alt="Foto Profil" 
+                                 class="rounded-circle shadow"
+                                 id="profilePreview"
+                                 style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #0d6efd;">
+                        @else
+                            <div class="rounded-circle bg-primary d-flex align-items-center justify-content-center text-white shadow"
+                                 id="profilePlaceholder"
+                                 style="width: 120px; height: 120px; font-size: 3rem; border: 4px solid #0d6efd;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <img src="" alt="Foto Profil" class="rounded-circle shadow d-none"
+                                 id="profilePreview"
+                                 style="width: 120px; height: 120px; object-fit: cover; border: 4px solid #0d6efd;">
+                        @endif
+                    </div>
+                </div>
+                <div class="col">
+                    <form action="{{ route('admin.profile.photo') }}" method="POST" enctype="multipart/form-data" id="photoUploadForm">
+                        @csrf
+                        <div class="mb-2">
+                            <label for="photo" class="form-label">
+                                <i class="fas fa-upload me-1"></i>Pilih Foto Baru
+                            </label>
+                            <input type="file" 
+                                   class="form-control @error('photo') is-invalid @enderror" 
+                                   id="photo" 
+                                   name="photo" 
+                                   accept="image/jpg,image/jpeg,image/png">
+                            @error('photo')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                            <small class="form-text text-muted">Format: JPG, JPEG, PNG. Maksimal 5MB. Akan di-resize ke 300x300 pixel.</small>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-sm" id="uploadBtn" disabled>
+                            <i class="fas fa-cloud-upload-alt me-1"></i>
+                            Upload Foto
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Profile Information -->
     <div class="card">
@@ -203,71 +267,6 @@
                                         </form>
                                     </td>
                                 </tr>
-
-                                <!-- Edit Modal -->
-                                <div class="modal fade" id="editManagementModal{{ $item->id }}" tabindex="-1" aria-hidden="true">
-                                    <div class="modal-dialog">
-                                        <div class="modal-content">
-                                            <form action="{{ route('admin.management.update', $item->id) }}" method="POST" enctype="multipart/form-data" class="management-form">
-                                                @csrf
-                                                @method('PUT')
-                                                <div class="modal-header">
-                                                    <h5 class="modal-title">Edit Pengurus</h5>
-                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                </div>
-                                                <div class="modal-body text-start">
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Nama Lengkap</label>
-                                                        <input type="text" name="nama_lengkap" class="form-control" value="{{ $item->nama_lengkap }}" required>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Jabatan <span class="text-danger">*</span></label>
-                                                        <select name="position_id" class="form-select" required>
-                                                            <option value="" disabled>Pilih Jabatan...</option>
-                                                            @foreach($positions as $pos)
-                                                                <option value="{{ $pos->id }}" {{ $item->position_id == $pos->id ? 'selected' : '' }}>
-                                                                    {{ $pos->name }}
-                                                                </option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                    <div class="mb-3">
-                                                        <label class="form-label">Foto Profil (Kosongkan jika tidak diubah)</label>
-                                                        <input type="file" name="foto_profil" class="form-control" accept="image/*">
-                                                    </div>
-                                                    
-                                                    <div class="mb-3">
-                                                        <label class="form-label d-block">Tanda Tangan</label>
-                                                        <ul class="nav nav-tabs mb-2" role="tablist">
-                                                            <li class="nav-item">
-                                                                <button class="nav-link active btn-sm py-1" data-bs-toggle="tab" data-bs-target="#upload-ttd-edit-{{ $item->id }}" type="button">Upload</button>
-                                                            </li>
-                                                            <li class="nav-item">
-                                                                <button class="nav-link btn-sm py-1" data-bs-toggle="tab" data-bs-target="#draw-ttd-edit-{{ $item->id }}" type="button">Gambar</button>
-                                                            </li>
-                                                        </ul>
-                                                        <div class="tab-content">
-                                                            <div class="tab-pane fade show active" id="upload-ttd-edit-{{ $item->id }}">
-                                                                <input type="file" name="ttd" class="form-control" accept="image/*">
-                                                            </div>
-                                                            <div class="tab-pane fade" id="draw-ttd-edit-{{ $item->id }}">
-                                                                <div class="signature-pad-container">
-                                                                    <canvas id="canvas-edit-{{ $item->id }}"></canvas>
-                                                                </div>
-                                                                <button type="button" class="btn btn-sm btn-outline-secondary mt-1 clear-canvas" data-canvas="canvas-edit-{{ $item->id }}">Hapus Gambar</button>
-                                                            </div>
-                                                        </div>
-                                                        <input type="hidden" name="ttd_drawing" class="ttd-drawing-input">
-                                                    </div>
-                                                </div>
-                                                <div class="modal-footer">
-                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                                                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                                                </div>
-                                            </form>
-                                        </div>
-                                    </div>
-                                </div>
                             @empty
                                 <tr>
                                     <td colspan="5" class="text-center py-4 text-muted">
@@ -281,6 +280,73 @@
             </div>
         </div>
     </div>
+
+    <!-- Edit Management Modals (placed outside table to avoid z-index issues) -->
+    @foreach($managements as $item)
+        <div class="modal fade" id="editManagementModal{{ $item->id }}" tabindex="-1" aria-hidden="true" data-bs-backdrop="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="{{ route('admin.management.update', $item->id) }}" method="POST" enctype="multipart/form-data" class="management-form">
+                        @csrf
+                        @method('PUT')
+                        <div class="modal-header">
+                            <h5 class="modal-title">Edit Pengurus</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body text-start">
+                            <div class="mb-3">
+                                <label class="form-label">Nama Lengkap</label>
+                                <input type="text" name="nama_lengkap" class="form-control" value="{{ $item->nama_lengkap }}" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Jabatan <span class="text-danger">*</span></label>
+                                <select name="position_id" class="form-select" required>
+                                    <option value="" disabled>Pilih Jabatan...</option>
+                                    @foreach($positions as $pos)
+                                        <option value="{{ $pos->id }}" {{ $item->position_id == $pos->id ? 'selected' : '' }}>
+                                            {{ $pos->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label">Foto Profil (Kosongkan jika tidak diubah)</label>
+                                <input type="file" name="foto_profil" class="form-control" accept="image/*">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label d-block">Tanda Tangan</label>
+                                <ul class="nav nav-tabs mb-2" role="tablist">
+                                    <li class="nav-item">
+                                        <button class="nav-link active btn-sm py-1" data-bs-toggle="tab" data-bs-target="#upload-ttd-edit-{{ $item->id }}" type="button">Upload</button>
+                                    </li>
+                                    <li class="nav-item">
+                                        <button class="nav-link btn-sm py-1" data-bs-toggle="tab" data-bs-target="#draw-ttd-edit-{{ $item->id }}" type="button">Gambar</button>
+                                    </li>
+                                </ul>
+                                <div class="tab-content">
+                                    <div class="tab-pane fade show active" id="upload-ttd-edit-{{ $item->id }}">
+                                        <input type="file" name="ttd" class="form-control" accept="image/*">
+                                    </div>
+                                    <div class="tab-pane fade" id="draw-ttd-edit-{{ $item->id }}">
+                                        <div class="signature-pad-container">
+                                            <canvas id="canvas-edit-{{ $item->id }}"></canvas>
+                                        </div>
+                                        <button type="button" class="btn btn-sm btn-outline-secondary mt-1 clear-canvas" data-canvas="canvas-edit-{{ $item->id }}">Hapus Gambar</button>
+                                    </div>
+                                </div>
+                                <input type="hidden" name="ttd_drawing" class="ttd-drawing-input">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                            <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    @endforeach
 
     <!-- Add Modal -->
     <div class="modal fade" id="addManagementModal" tabindex="-1" aria-hidden="true">
@@ -520,6 +586,35 @@ document.addEventListener('DOMContentLoaded', function() {
             bsAlert.close();
         });
     }, 5000);
+
+    // Profile photo preview functionality
+    const photoInput = document.getElementById('photo');
+    const uploadBtn = document.getElementById('uploadBtn');
+    const profilePreview = document.getElementById('profilePreview');
+    const profilePlaceholder = document.getElementById('profilePlaceholder');
+
+    if (photoInput) {
+        photoInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                // Enable upload button
+                uploadBtn.disabled = false;
+                
+                // Preview image
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    if (profilePlaceholder) {
+                        profilePlaceholder.classList.add('d-none');
+                    }
+                    profilePreview.src = event.target.result;
+                    profilePreview.classList.remove('d-none');
+                };
+                reader.readAsDataURL(file);
+            } else {
+                uploadBtn.disabled = true;
+            }
+        });
+    }
 
     // Real-time password validation
     const newPassword = document.getElementById('new_password');

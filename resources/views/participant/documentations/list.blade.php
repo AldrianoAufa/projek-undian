@@ -23,7 +23,7 @@
                 <div class="card h-100 border-0 shadow-sm rounded-4 overflow-hidden hover-lift">
                     <div class="card-header bg-white border-0 py-3 d-flex justify-content-between align-items-center">
                         <div>
-                            <span class="badge bg-primary bg-opacity-10 text-primary mb-1">{{ $period->period_start->locale('id')->monthName }} {{ $period->period_start->year }}</span>
+                            <span class="badge bg-secondary bg-opacity-10 text-primary mb-1">{{ $period->period_start->locale('id')->monthName }} {{ $period->period_start->year }}</span>
                             <h6 class="mb-0 fw-bold">{{ $period->period_name }}</h6>
                         </div>
                         <a href="{{ route('participant.periods.documentations', $period->id) }}" class="btn btn-sm btn-outline-primary rounded-pill">

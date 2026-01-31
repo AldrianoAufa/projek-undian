@@ -567,8 +567,14 @@ class ParticipantController extends Controller
         // Find all participants with the same NIK to keep profiles in sync
         $linkedParticipants = Participant::where('nik', $participant->nik)->get();
         
-        // Handle photo upload
+        // Handle photo upload with Intervention Image
         $photoPath = $participant->photo;
+        
+        // Initialize Intervention Image Manager
+        $imageManager = new \Intervention\Image\ImageManager(
+            new \Intervention\Image\Drivers\Gd\Driver()
+        );
+        
         if ($request->hasFile('photo')) {
             // Delete old photo if exists
             if ($participant->photo) {
@@ -576,8 +582,21 @@ class ParticipantController extends Controller
             }
             
             $file = $request->file('photo');
-            $filename = time() . '_participant_' . $participant->nik . '.' . $file->getClientOriginalExtension();
-            $photoPath = $file->storeAs('uploads/participants', $filename, 'public');
+            $filename = time() . '_participant_' . $participant->nik . '.webp';
+            
+            // Process image: resize to 300x300 and convert to WebP
+            $image = $imageManager->read($file->getPathname())
+                ->cover(300, 300) // Crop otomatis ke tengah (1:1)
+                ->toWebp(80); // Konversi ke WebP dengan kualitas 80%
+            
+            // Ensure directory exists
+            if (!Storage::disk('public')->exists('uploads/participants')) {
+                Storage::disk('public')->makeDirectory('uploads/participants');
+            }
+            
+            Storage::disk('public')->put('uploads/participants/' . $filename, (string) $image);
+            $photoPath = 'uploads/participants/' . $filename;
+            
         } elseif ($request->filled('captured_photo')) {
             // Delete old photo if exists
             if ($participant->photo) {
@@ -599,13 +618,19 @@ class ParticipantController extends Controller
                     throw new \Exception('Gagal mendecode gambar base64');
                 }
                 
-                $filename = time() . '_participant_' . $participant->nik . '.jpg';
+                $filename = time() . '_participant_' . $participant->nik . '.webp';
+                
+                // Process image: resize to 300x300 and convert to WebP
+                $image = $imageManager->read($decodedImage)
+                    ->cover(300, 300) // Crop otomatis ke tengah (1:1)
+                    ->toWebp(80); // Konversi ke WebP dengan kualitas 80%
+                
                 // Ensure directory exists
                 if (!Storage::disk('public')->exists('uploads/participants')) {
                     Storage::disk('public')->makeDirectory('uploads/participants');
                 }
                 
-                Storage::disk('public')->put('uploads/participants/' . $filename, $decodedImage);
+                Storage::disk('public')->put('uploads/participants/' . $filename, (string) $image);
                 $photoPath = 'uploads/participants/' . $filename;
                 
             } catch (\Exception $e) {

@@ -183,7 +183,7 @@
             min-height: 100vh;
             display: flex;
             align-items: center;
-            background-image: url('{{ asset('storage/img/background.jpg') }}');
+            background-image: url('{{ asset('storage/img/background.webp') }}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -1201,7 +1201,7 @@
     <nav class="navbar navbar-expand-lg">
         <div class="container">
             <a class="navbar-brand" href="#home">
-                <img src="{{ asset('storage/img/logo.jpeg') }}" alt="PRIMA Logo">
+                <img src="{{ asset('storage/img/logo.webp') }}" alt="PRIMA Logo">
                 <div class="brand-text d-none d-lg-flex">
                     <span class="brand-subtitle">PRIMKOPKAR PRIMA</span>
                     <span class="brand-title">ARISAN SEPEDA MOTOR</span>
@@ -1262,7 +1262,7 @@
                     </div>
                 </div>
                 <div class="col-lg-6 hero-image">
-                    <img src="{{ asset('storage/img/logo.jpeg') }}" alt="PRIMA Illustration" style="border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="400">
+                    <img src="{{ asset('storage/img/logo.webp') }}" alt="PRIMA Illustration" style="border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="400">
                 </div>
             </div>
         </div>
@@ -1292,7 +1292,7 @@
                     </p>
                 </div>
                 <div class="about-image" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="400">
-                    <img src="{{ asset('storage/img/logo.jpeg') }}" alt="About PRIMA">
+                    <img src="{{ asset('storage/img/logo.webp') }}" alt="About PRIMA">
                 </div>
             </div>
 
@@ -1335,7 +1335,7 @@
                         </p>
                     </div>
                     <div class="feature-image">
-                        <img src="{{ asset('storage/img/keamanan.png') }}" alt="Keamanan Terjamin" loading="lazy" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="400">
+                        <img src="{{ asset('storage/img/keamanan.webp') }}" alt="Keamanan Terjamin" loading="lazy" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="400">
                     </div>
                 </div>
 
@@ -1350,7 +1350,7 @@
                         </p>
                     </div>
                     <div class="feature-image">
-                        <img src="{{ asset('storage/img/transparan.png') }}" alt="Transparan & Akurat" loading="lazy" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="400">
+                        <img src="{{ asset('storage/img/transparan.webp') }}" alt="Transparan & Akurat" loading="lazy" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="400">
                     </div>
                 </div>
 
@@ -1365,7 +1365,7 @@
                         </p>
                     </div>
                     <div class="feature-image">
-                         <img src="{{ asset('storage/img/kemudahan.png') }}" alt="Akses Mudah" loading="lazy" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="400">
+                         <img src="{{ asset('storage/img/kemudahan.webp') }}" alt="Akses Mudah" loading="lazy" data-aos="fade-left" data-aos-duration="1000" data-aos-delay="400">
                     </div>
                 </div>
 
@@ -1380,7 +1380,7 @@
                         </p>
                     </div>
                     <div class="feature-image">
-                         <img src="{{ asset('storage/img/profesional.png') }}" alt="Manajemen Profesional" loading="lazy" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="400">
+                         <img src="{{ asset('storage/img/profesional.webp') }}" alt="Manajemen Profesional" loading="lazy" data-aos="fade-right" data-aos-duration="1000" data-aos-delay="400">
                     </div>
                 </div>
 

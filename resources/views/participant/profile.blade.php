@@ -64,10 +64,15 @@
                             </div>
                         @else
                             <div class="rounded-circle bg-light d-flex align-items-center justify-content-center border shadow-sm mx-auto" 
+                                 id="profile-placeholder"
                                  style="width: 150px; height: 150px; background-color: #f8fafc !important;">
                                 <i class="fas fa-user fa-4x text-muted opacity-30"></i>
                             </div>
-                            <div class="mt-2 small text-muted">Belum ada foto profil</div>
+                            <img src="" alt="Foto Profil" 
+                                 class="rounded-circle shadow border d-none" 
+                                 id="profile-img-preview"
+                                 style="width: 150px; height: 150px; object-fit: cover; border: 5px solid #fff;">
+                            <div class="mt-2 small text-muted" id="no-photo-text">Belum ada foto profil</div>
                         @endif
                         
                         <!-- Camera Button -->
@@ -460,10 +465,17 @@ function usePhoto() {
     // Clear file input so controller uses captured photo
     if (fileInput) fileInput.value = '';
     
+    // Hide placeholder and "no photo" text if exists
+    const placeholder = document.getElementById('profile-placeholder');
+    const noPhotoText = document.getElementById('no-photo-text');
+    if (placeholder) placeholder.classList.add('d-none');
+    if (noPhotoText) noPhotoText.classList.add('d-none');
+    
     // Show preview on main profile image
     const mainPreview = document.getElementById('profile-img-preview');
     if (mainPreview) {
         mainPreview.src = data;
+        mainPreview.classList.remove('d-none');
     }
     
     stopCamera();

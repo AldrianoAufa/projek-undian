@@ -453,29 +453,6 @@
                     SISTEM ARISAN PRIMKOPKAR PRIMA
                 </a>
             </div>
-
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <div class="navbar-nav ms-auto">
-                    <a href="{{ route('home') }}" class="btn btn-profile me-2">
-                        <i class="fas fa-home me-1"></i>
-                        Beranda
-                    </a>
-                    <a href="{{ route('admin.profile') }}" class="btn btn-profile me-2">
-                        <i class="fas fa-user-cog me-1"></i>
-                        Profil Admin
-                    </a>
-                    <form action="{{ route('logout') }}" method="POST" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn btn-logout">
-                            <i class="fas fa-sign-out-alt me-1"></i>
-                            Logout
-                        </button>
-                    </form>
-                </div>
-            </div>
         </div>
     </nav>
 

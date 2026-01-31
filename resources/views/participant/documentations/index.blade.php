@@ -55,8 +55,25 @@
                                     </span>
                                     <small class="text-muted">{{ $doc->created_at->format('d M Y') }}</small>
                                 </div>
+                                @php
+                                    $deleteDate = $doc->created_at->copy()->addMonths(6);
+                                    $daysLeft = (int) floor(now()->diffInDays($deleteDate, false));
+                                @endphp
+                                <p class="small mb-2 {{ $daysLeft <= 30 ? 'text-danger' : 'text-warning' }}">
+                                    <i class="fas fa-clock me-1"></i> 
+                                    @if($daysLeft > 0)
+                                        Dihapus dalam {{ $daysLeft }} hari
+                                    @else
+                                        Akan segera dihapus
+                                    @endif
+                                </p>
                                 @if($doc->caption)
-                                    <p class="card-text fw-bold text-dark mb-0">{{ $doc->caption }}</p>
+                                    <p class="card-text fw-bold text-dark mb-2">{{ $doc->caption }}</p>
+                                @endif
+                                @if($doc->type !== 'text')
+                                    <a href="{{ route('admin.documentations.download', $doc->id) }}" class="btn btn-sm btn-outline-primary w-100 mt-1">
+                                        <i class="fas fa-download me-1"></i> Download
+                                    </a>
                                 @endif
                             </div>
                         </div>

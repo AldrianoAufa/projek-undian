@@ -35,7 +35,7 @@
             align-items: center;
             position: relative;
             overflow-x: hidden;
-            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("{{ asset('storage/img/background.jpg') }}") no-repeat center center / cover fixed;
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("{{ asset('storage/img/background.webp') }}") no-repeat center center / cover fixed;
         }
         
         .background-pattern {
@@ -358,7 +358,7 @@
             <!-- Left side - Brand & Welcome -->
             <div class="login-left">
                 <div class="brand-logo">
-                    <img src="{{ asset('storage/img/logo.jpeg') }}" alt="PRIMA Logo" style="width: 80px; height: 80px; object-fit: contain; margin-right: 1rem; background: white; padding: 5px; border-radius: 10px;">
+                    <img src="{{ asset('storage/img/logo.webp') }}" alt="PRIMA Logo" style="width: 80px; height: 80px; object-fit: contain; margin-right: 1rem; background: white; padding: 5px; border-radius: 10px;">
                     <div style="text-align: left;">
                             <div class="brand-name" style="text-transform: uppercase; letter-spacing: 1px;">primkopkar prima</div>
                             <div class="brand-subtitle">PT. PRIMATEXCO INDONESIA</div>
@@ -386,7 +386,10 @@
                     @csrf
                     
                     @if ($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @php
+                            $isRateLimited = str_contains($errors->first(), 'Terlalu banyak');
+                        @endphp
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert" @if($isRateLimited) id="rate-limit-error" @endif>
                             <div class="d-flex align-items-center">
                                 <i class="fas fa-exclamation-circle me-2"></i>
                                 <div><strong>Login Gagal!</strong> {{ $errors->first() }}</div>
@@ -457,17 +460,27 @@
             // Show loading state
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Memproses...';
             submitBtn.disabled = true;
-            
-            // Simulate network delay for demo purposes only
-            // Remove this in production
-            setTimeout(() => {
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
-            }, 1500);
         });
         
-        // Auto-focus on lottery number field
-        document.getElementById('lottery_number').focus();
+        // Disable form when rate limited
+        const rateLimitError = document.querySelector('#rate-limit-error');
+        if (rateLimitError) {
+            const usernameInput = document.getElementById('lottery_number');
+            const passwordInput = document.getElementById('password');
+            const submitBtn = document.querySelector('button[type="submit"]');
+            
+            usernameInput.disabled = true;
+            passwordInput.disabled = true;
+            submitBtn.disabled = true;
+            
+            usernameInput.style.backgroundColor = '#f1f5f9';
+            passwordInput.style.backgroundColor = '#f1f5f9';
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+        } else {
+            // Auto-focus on lottery number field only if not rate limited
+            document.getElementById('lottery_number').focus();
+        }
     </script>
 </body>
 </html>

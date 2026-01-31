@@ -23,7 +23,7 @@
 
         body {
             font-family: 'Inter', sans-serif;
-            background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), url("{{ asset('storage/img/background.jpg') }}");
+            background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), url("{{ asset('storage/img/background.webp') }}");
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -245,14 +245,17 @@
     <div class="login-card">
         <div class="login-header">
             <div class="brand-logo">
-                <img src="{{ asset('storage/img/logo.jpeg') }}" alt="Logo Primkopkar">
+                <img src="{{ asset('storage/img/logo.webp') }}" alt="Logo Primkopkar">
             </div>
             <h1>Admin Panel</h1>
             <p>Silakan masuk untuk mengelola sistem</p>
         </div>
 
         @if ($errors->any())
-            <div class="alert-custom">
+            @php
+                $isRateLimited = str_contains($errors->first(), 'Terlalu banyak');
+            @endphp
+            <div class="alert-custom" @if($isRateLimited) id="rate-limit-error" @endif>
                 <i class="fas fa-exclamation-circle"></i>
                 <span>{{ $errors->first() }}</span>
             </div>
@@ -320,6 +323,23 @@
             submitBtn.classList.add('loading');
             submitBtn.disabled = true;
         });
+
+        // Disable form when rate limited
+        const rateLimitError = document.querySelector('#rate-limit-error');
+        if (rateLimitError) {
+            const emailInput = document.querySelector('#email');
+            const passwordInput = document.querySelector('#password');
+            const submitBtn = document.querySelector('#submitBtn');
+            
+            emailInput.disabled = true;
+            passwordInput.disabled = true;
+            submitBtn.disabled = true;
+            
+            emailInput.style.backgroundColor = '#f1f5f9';
+            passwordInput.style.backgroundColor = '#f1f5f9';
+            submitBtn.style.opacity = '0.5';
+            submitBtn.style.cursor = 'not-allowed';
+        }
     </script>
 </body>
 </html>

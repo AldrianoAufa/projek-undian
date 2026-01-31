@@ -38,8 +38,18 @@ class KtaController extends Controller
                 if (File::exists($oldPath)) File::delete($oldPath);
             }
             $logo = $request->file('logo');
-            $logoName = 'logo_' . time() . '.' . $logo->getClientOriginalExtension();
-            $logo->move(public_path('uploads/kta'), $logoName);
+            $logoName = 'logo_' . time() . '.webp';
+            
+            if (!file_exists(public_path('uploads/kta'))) {
+                mkdir(public_path('uploads/kta'), 0777, true);
+            }
+            
+            // Process image: convert to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read($logo->getPathname())->toWebp(80);
+            file_put_contents(public_path('uploads/kta/' . $logoName), (string) $image);
             $data['logo'] = $logoName;
         }
 
@@ -49,8 +59,18 @@ class KtaController extends Controller
                 if (File::exists($oldPath)) File::delete($oldPath);
             }
             $signature = $request->file('signature_image');
-            $signatureName = 'signature_' . time() . '.' . $signature->getClientOriginalExtension();
-            $signature->move(public_path('uploads/kta'), $signatureName);
+            $signatureName = 'signature_' . time() . '.webp';
+            
+            if (!file_exists(public_path('uploads/kta'))) {
+                mkdir(public_path('uploads/kta'), 0777, true);
+            }
+            
+            // Process image: convert to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read($signature->getPathname())->toWebp(80);
+            file_put_contents(public_path('uploads/kta/' . $signatureName), (string) $image);
             $data['signature_image'] = $signatureName;
         }
 

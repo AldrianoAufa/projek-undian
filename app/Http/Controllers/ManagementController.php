@@ -24,18 +24,44 @@ class ManagementController extends Controller
         $data['jabatan'] = $position->name;
 
         if ($request->hasFile('foto_profil')) {
-            $data['foto_profil'] = $request->file('foto_profil')->store('management/photos', 'public');
+            $photo = $request->file('foto_profil');
+            $photoName = 'management/photos/' . time() . '_' . uniqid() . '.webp';
+            
+            // Process image: resize to 300x300 and convert to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read($photo->getPathname())
+                ->cover(300, 300)
+                ->toWebp(80);
+            Storage::disk('public')->put($photoName, (string) $image);
+            $data['foto_profil'] = $photoName;
         }
 
         if ($request->filled('ttd_drawing')) {
             $imageData = $request->input('ttd_drawing');
             $imageData = str_replace('data:image/png;base64,', '', $imageData);
             $imageData = str_replace(' ', '+', $imageData);
-            $fileName = 'management/signatures/' . uniqid() . '.png';
-            Storage::disk('public')->put($fileName, base64_decode($imageData));
+            $fileName = 'management/signatures/' . uniqid() . '.webp';
+            
+            // Convert drawing to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read(base64_decode($imageData))->toWebp(80);
+            Storage::disk('public')->put($fileName, (string) $image);
             $data['ttd'] = $fileName;
         } elseif ($request->hasFile('ttd')) {
-            $data['ttd'] = $request->file('ttd')->store('management/signatures', 'public');
+            $ttd = $request->file('ttd');
+            $ttdName = 'management/signatures/' . time() . '_' . uniqid() . '.webp';
+            
+            // Process image: convert to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read($ttd->getPathname())->toWebp(80);
+            Storage::disk('public')->put($ttdName, (string) $image);
+            $data['ttd'] = $ttdName;
         }
 
         Management::create($data);
@@ -63,7 +89,19 @@ class ManagementController extends Controller
             if ($management->foto_profil) {
                 Storage::disk('public')->delete($management->foto_profil);
             }
-            $data['foto_profil'] = $request->file('foto_profil')->store('management/photos', 'public');
+            
+            $photo = $request->file('foto_profil');
+            $photoName = 'management/photos/' . time() . '_' . uniqid() . '.webp';
+            
+            // Process image: resize to 300x300 and convert to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read($photo->getPathname())
+                ->cover(300, 300)
+                ->toWebp(80);
+            Storage::disk('public')->put($photoName, (string) $image);
+            $data['foto_profil'] = $photoName;
         }
 
         if ($request->filled('ttd_drawing')) {
@@ -73,14 +111,30 @@ class ManagementController extends Controller
             $imageData = $request->input('ttd_drawing');
             $imageData = str_replace('data:image/png;base64,', '', $imageData);
             $imageData = str_replace(' ', '+', $imageData);
-            $fileName = 'management/signatures/' . uniqid() . '.png';
-            Storage::disk('public')->put($fileName, base64_decode($imageData));
+            $fileName = 'management/signatures/' . uniqid() . '.webp';
+            
+            // Convert drawing to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read(base64_decode($imageData))->toWebp(80);
+            Storage::disk('public')->put($fileName, (string) $image);
             $data['ttd'] = $fileName;
         } elseif ($request->hasFile('ttd')) {
             if ($management->ttd) {
                 Storage::disk('public')->delete($management->ttd);
             }
-            $data['ttd'] = $request->file('ttd')->store('management/signatures', 'public');
+            
+            $ttd = $request->file('ttd');
+            $ttdName = 'management/signatures/' . time() . '_' . uniqid() . '.webp';
+            
+            // Process image: convert to WebP
+            $imageManager = new \Intervention\Image\ImageManager(
+                new \Intervention\Image\Drivers\Gd\Driver()
+            );
+            $image = $imageManager->read($ttd->getPathname())->toWebp(80);
+            Storage::disk('public')->put($ttdName, (string) $image);
+            $data['ttd'] = $ttdName;
         }
 
         $management->update($data);

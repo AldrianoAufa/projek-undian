@@ -125,7 +125,7 @@
 
     .kta-back {
         background-color: #fff;
-        background-image: url('{{ asset('storage/img/logo.jpeg') }}');
+        background-image: url('{{ asset('storage/img/logo.webp') }}');
         background-size: contain;
         background-repeat: no-repeat;
         background-position: center;

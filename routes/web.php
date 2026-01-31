@@ -83,11 +83,11 @@ Route::get('/register', [RegistrationController::class, 'index'])->name('registe
 Route::get('/register/group/{groupId}', [RegistrationController::class, 'form'])->name('register.form');
 Route::post('/register/group/{groupId}', [RegistrationController::class, 'store'])->name('register.store');
 
-// Authentication routes
+// Authentication routes (dengan rate limiting untuk mencegah brute force)
 Route::get('/login', [AuthController::class, 'showParticipantLoginForm'])->name('login'); // Main Participant Login
-Route::post('/login', [AuthController::class, 'participantLogin'])->name('participant.login'); // POST action for participant
+Route::post('/login', [AuthController::class, 'participantLogin'])->middleware('throttle:5,1')->name('participant.login'); // POST action for participant (5 attempts/minute)
 Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('admin.login.form'); // Admin Login Form
-Route::post('/admin/login', [AuthController::class, 'login'])->name('admin.login'); // Admin Login Action
+Route::post('/admin/login', [AuthController::class, 'login'])->middleware('throttle:5,1')->name('admin.login'); // Admin Login Action (5 attempts/minute)
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // Admin routes (middleware will be added later)
@@ -192,6 +192,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
     Route::get('/documentations/{id}/edit', [\App\Http\Controllers\Admin\DocumentationController::class, 'edit'])->name('documentations.edit');
     Route::put('/documentations/{id}', [\App\Http\Controllers\Admin\DocumentationController::class, 'update'])->name('documentations.update');
     Route::delete('/documentations/{id}', [\App\Http\Controllers\Admin\DocumentationController::class, 'destroy'])->name('documentations.destroy');
+    Route::get('/documentations/{id}/download', [\App\Http\Controllers\Admin\DocumentationController::class, 'download'])->name('documentations.download');
 
     
     // Kelola Jabatan (Integrated in Profile)
@@ -211,6 +212,7 @@ Route::prefix('admin')->name('admin.')->middleware('auth:admin')->group(function
     // Admin Profile
     Route::get('/profile', [AdminController::class, 'profile'])->name('profile');
     Route::put('/profile', [AdminController::class, 'updatePassword'])->name('profile.update');
+    Route::post('/profile/photo', [AdminController::class, 'uploadProfilePhoto'])->name('profile.photo');
 
     // Management (Pengurus) routes
     Route::post('/management', [\App\Http\Controllers\ManagementController::class, 'store'])->name('management.store');

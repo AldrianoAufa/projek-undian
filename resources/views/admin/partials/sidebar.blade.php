@@ -3,6 +3,9 @@
         <h5 class="mb-0">Menu</h5>
     </div>
     <div class="list-group list-group-flush sidebar-menu">
+        <a href="{{ route('home') }}" class="list-group-item list-group-item-action">
+            <i class="fas fa-home me-2"></i>Beranda
+        </a>
         <a href="{{ route('admin.dashboard') }}" class="list-group-item list-group-item-action {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
             <i class="fas fa-tachometer-alt me-2"></i>Dashboard
         </a>
@@ -27,5 +30,18 @@
         <a href="{{ route('admin.kta.scanner') }}" class="list-group-item list-group-item-action {{ (request()->routeIs('admin.kta.scanner')) ? 'active' : '' }}">
             <i class="fas fa-qrcode me-2"></i>Scan KTA
         </a>
+        
+        <!-- Divider -->
+        <div class="border-top my-2"></div>
+        
+        <a href="{{ route('admin.profile') }}" class="list-group-item list-group-item-action {{ request()->routeIs('admin.profile') ? 'active' : '' }}">
+            <i class="fas fa-user-cog me-2"></i>Profil Admin
+        </a>
+        <form action="{{ route('logout') }}" method="POST" class="m-0">
+            @csrf
+            <button type="submit" class="list-group-item list-group-item-action text-danger w-100 text-start border-0">
+                <i class="fas fa-sign-out-alt me-2"></i>Logout
+            </button>
+        </form>
     </div>
 </div>
