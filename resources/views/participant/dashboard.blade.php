@@ -37,7 +37,7 @@
             <div class="row align-items-center">
                 <div class="col-md-2 text-center mb-3 mb-md-0">
                     @if($participant->photo)
-                        <img src="{{ asset('storage/' . $participant->photo) }}" alt="Foto" class="rounded-circle shadow border" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #fff;">
+                        <img src="{{ storage_url($participant->photo) }}" alt="Foto" class="rounded-circle shadow border" style="width: 100px; height: 100px; object-fit: cover; border: 3px solid #fff;">
                     @else
                         <div class="rounded-circle bg-light d-flex align-items-center justify-content-center border shadow-sm mx-auto" style="width: 100px; height: 100px;">
                             <i class="fas fa-user fa-3x text-muted opacity-30"></i>

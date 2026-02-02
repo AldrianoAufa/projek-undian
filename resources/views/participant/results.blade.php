@@ -198,7 +198,7 @@
                                         <div class="d-flex align-items-center">
                                             <div class="avatar-sm me-3">
                                                 @if($p->photo)
-                                                    <img src="{{ asset('storage/' . $p->photo) }}" alt="{{ $p->name }}" 
+                                                    <img src="{{ storage_url($p->photo) }}" alt="{{ $p->name }}" 
                                                          class="rounded-circle w-100 h-100" style="object-fit: cover; border: 2px solid {{ $p->is_winner ? '#22c55e' : '#e2e8f0' }};">
                                                 @else
                                                     <div class="bg-light rounded-circle d-flex align-items-center justify-content-center w-100 h-100">

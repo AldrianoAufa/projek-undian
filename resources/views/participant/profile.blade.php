@@ -47,7 +47,7 @@
                 <div class="col-12 text-center">
                     <div class="position-relative d-inline-block">
                         @if($participant->photo)
-                            <img src="{{ asset('storage/' . $participant->photo) }}" alt="Foto Profil" 
+                            <img src="{{ storage_url($participant->photo) }}" alt="Foto Profil" 
                                  class="rounded-circle shadow border" 
                                  id="profile-img-preview"
                                  style="width: 150px; height: 150px; object-fit: cover; border: 5px solid #fff;">

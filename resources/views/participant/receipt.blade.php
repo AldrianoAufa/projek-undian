@@ -148,7 +148,7 @@
             <div class="col-6 text-center">
                 <div class="d-flex flex-column align-items-center">
                     @if($admin_signature && $admin_signature->ttd)
-                        <img src="{{ asset('storage/' . $admin_signature->ttd) }}" alt="TTD Admin" style="height: 60px; max-width: 150px; object-fit: contain;">
+                        <img src="{{ storage_url($admin_signature->ttd) }}" alt="TTD Admin" style="height: 60px; max-width: 150px; object-fit: contain;">
                     @else
                         <div style="height: 60px;"></div>
                     @endif

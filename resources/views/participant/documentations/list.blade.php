@@ -39,7 +39,7 @@
                     
                     <div class="position-relative" style="height: 200px; background-color: #f8f9fa;">
                         @if($firstImage)
-                            <img src="{{ asset('storage/' . $firstImage->content) }}" class="w-100 h-100 object-fit-cover" alt="Preview">
+                            <img src="{{ storage_url($firstImage->content) }}" class="w-100 h-100 object-fit-cover" alt="Preview">
                         @else
                             <div class="d-flex align-items-center justify-content-center h-100 text-muted">
                                 <div class="text-center">

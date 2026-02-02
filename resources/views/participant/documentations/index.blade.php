@@ -26,13 +26,13 @@
                     <div class="col-lg-4 col-md-6">
                         <div class="card border-0 shadow-sm rounded-4 h-100 overflow-hidden hover-lift">
                             @if($doc->type === 'image')
-                                <a href="{{ asset('storage/' . $doc->content) }}" target="_blank">
-                                    <img src="{{ asset('storage/' . $doc->content) }}" class="card-img-top object-fit-cover" style="height: 220px;" alt="{{ $doc->caption }}">
+                                <a href="{{ storage_url($doc->content) }}" target="_blank">
+                                    <img src="{{ storage_url($doc->content) }}" class="card-img-top object-fit-cover" style="height: 220px;" alt="{{ $doc->caption }}">
                                 </a>
                             @elseif($doc->type === 'video')
                                 <div class="ratio ratio-16x9">
                                     <video controls poster="">
-                                        <source src="{{ asset('storage/' . $doc->content) }}">
+                                        <source src="{{ storage_url($doc->content) }}">
                                         Your browser does not support the video tag.
                                     </video>
                                 </div>
